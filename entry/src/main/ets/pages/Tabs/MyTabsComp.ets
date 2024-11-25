@@ -17,7 +17,7 @@ export struct MyTabsComp {
   @StorageLink(LOGIN_INFO) loginInfo: LoginInfoResponse = {}
   @StorageLink('topHeight') topHeight: number = 0
   // @Provide 装饰器和 @Consume 装饰器：与后代组件双向同步
-  @Consume currentIndex: number
+  @Consume @Watch('onTabsChange') currentIndex: number
   // 设备名称
   @State deviceName: string = ''
   // 电池电量百分比
@@ -56,10 +56,22 @@ export struct MyTabsComp {
 
   // 组件加载时获取设备名称
   aboutToAppear() {
+    // 以这些方法获取到数据之后，一旦组件安装加载时获取到之后，不会根据实时的数据发生改变
+    // 如果想让数据以及显示发生变化，应该根据需求添加监听事件
     this.getDeviceInfo()
     this.getDebugInfo()
     this.getStatfsInfo()
     this.getBatteryInfo()
+  }
+
+  // 当标签 Tabs 发生变化时
+  onTabsChange() {
+    // 监测到当前的标签为 '我的'，重新获取以下数据
+    if (this.currentIndex === 2) {
+      this.getDebugInfo()
+      this.getStatfsInfo()
+      this.getBatteryInfo()
+    }
   }
 
   // 获取设备产品名称，得到 emulator（模拟器）
