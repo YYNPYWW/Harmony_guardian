@@ -1,5 +1,8 @@
 import { router } from '@kit.ArkUI'
 import { LOGIN_INFO, LoginInfoResponse } from '../../common/constants'
+import { batteryInfo, deviceInfo } from '@kit.BasicServicesKit'
+import { hidebug } from '@kit.PerformanceAnalysisKit'
+import { statfs } from '@kit.CoreFileKit'
 
 interface UsageItem {
   icon: Resource
@@ -15,10 +18,15 @@ export struct MyTabsComp {
   @StorageLink('topHeight') topHeight: number = 0
   // @Provide 装饰器和 @Consume 装饰器：与后代组件双向同步
   @Consume currentIndex: number
+  // 设备名称
   @State deviceName: string = ''
+  // 电池电量百分比
   @State batteryState: number = 0
+  // 内存占用
   @State memorySize: number = 0
+  // CPU 占用率
   @State cpuUsage: number = 0
+  // 剩余存储
   @State statfsFreeSize: number = 0
 
   // 标题行
@@ -44,6 +52,42 @@ export struct MyTabsComp {
     .width('100%')
     .padding({ top: 40, bottom: 20 })
     .justifyContent(FlexAlign.SpaceBetween)
+  }
+
+  // 组件加载时获取设备名称
+  aboutToAppear() {
+    this.getDeviceInfo()
+    this.getDebugInfo()
+    this.getStatfsInfo()
+    this.getBatteryInfo()
+  }
+
+  // 获取设备产品名称，得到 emulator（模拟器）
+  getDeviceInfo() {
+    this.deviceName = deviceInfo.marketName
+  }
+
+  // 获取调试信息：CPU占用、内存占用、剩余存储等
+  getDebugInfo() {
+    // 获取 CPU 占用
+    this.cpuUsage = hidebug.getCpuUsage() * 100
+    // 获取应用进程实际使用的物理内存大小，单位为 KB
+    // 单位转换，1MB = 1024KB（针对 Windows 系统）
+    // 1MB = 1000KB（针对 MAC 系统、手机系统）
+    this.memorySize = Number(hidebug.getPss()) / 1000
+  }
+
+  // 获取文件系统空间信息
+  getStatfsInfo() {
+    const path = getContext()
+    // 获取指定文件系统空闲字节数 Byte
+    // 1000B = 1KB、 1000KB = 1MB、 1000MB = 1GB
+    this.statfsFreeSize = statfs.getFreeSizeSync(path.filesDir) / 1000 / 1000 / 1000
+  }
+
+  // 获取电量信息：剩余电量
+  getBatteryInfo() {
+    this.batteryState = batteryInfo.batterySOC
   }
 
   // 占用率
