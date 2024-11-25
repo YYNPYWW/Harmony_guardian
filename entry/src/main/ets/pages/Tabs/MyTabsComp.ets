@@ -18,6 +18,8 @@ export struct MyTabsComp {
   @StorageLink('topHeight') topHeight: number = 0
   // @Provide 装饰器和 @Consume 装饰器：与后代组件双向同步
   @Consume @Watch('onTabsChange') currentIndex: number
+  // 根据父组件传来的状态实现相应的逻辑
+  @Consume @Watch('onTabsChange') isPageShow: boolean
   // 设备名称
   @State deviceName: string = ''
   // 电池电量百分比
@@ -67,7 +69,8 @@ export struct MyTabsComp {
   // 当标签 Tabs 发生变化时
   onTabsChange() {
     // 监测到当前的标签为 '我的'，重新获取以下数据
-    if (this.currentIndex === 2) {
+    // 增加判断 页面打开的情况
+    if (this.currentIndex === 2 && this.isPageShow === true) {
       this.getDebugInfo()
       this.getStatfsInfo()
       this.getBatteryInfo()

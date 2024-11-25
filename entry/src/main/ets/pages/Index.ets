@@ -8,13 +8,18 @@ import { MyTabsComp } from './Tabs/MyTabsComp';
 struct Index {
   // @Provide 装饰器和 @Consume装饰器：与后代组件双向同步
   @Provide currentIndex: number = 0
+  // 根据情况决定 页面是否打开 的状态
+  @Provide isPageShow: boolean = false
   @StorageLink('bottomHeight') bottomHeight: number = 0
 
   onPageShow() {
+    this.isPageShow = true
+    // 全屏展示
     themeManager.enableFullScreen()
   }
 
   onPageHide() {
+    this.isPageShow = false
     themeManager.disableFullScreen()
   }
 
