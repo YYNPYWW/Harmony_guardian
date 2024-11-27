@@ -1,5 +1,11 @@
 {
   "module": {
+    // 配置获取网络信息的权限
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.GET_NETWORK_INFO"
+      }
+    ],
     "name": "entry",
     "type": "entry",
     "description": "$string:module_desc",
